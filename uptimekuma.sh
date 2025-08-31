@@ -87,7 +87,7 @@ fi
 echo -n "Sending status: "
 if [[ $IS_OK == "1" ]]; then
   echo "OK"
-  curl -s -o /dev/null -G "$API_URL$PUSH_KEY?status=up&msg=OK"
+  curl -s -o /dev/null -G "$API_URL$PUSH_KEY?status=up&msg=OK&ping=$CPU_PERCENT"
 else
   ERROR_STRING=$(IFS=";"; echo "${ERROR_MESSAGES[*]}")
   echo $ERROR_STRING
