@@ -16,11 +16,11 @@ to configure the `API_URL` and `PUSH_KEY` and optionally customize alert paramet
 ### As root:
 
 ```bash
-mkdir -p /opt && wget -O /opt/uptimekuma.sh https://source.netsyms.com/Netsyms/uptime-kuma-server-health/raw/branch/main/uptimekuma.sh && chmod +x /opt/uptimekuma.sh && crontab -l | { cat; echo "* * * * * /opt/uptimekuma.sh"; } | crontab -
+mkdir -p /opt && wget -O /opt/uptimekuma.sh https://source.netsyms.com/Netsyms/uptime-kuma-server-health/raw/branch/main/uptimekuma.sh && chmod +x /opt/uptimekuma.sh && crontab -l | { cat; echo "* * * * * /opt/uptimekuma.sh > /dev/null"; } | crontab -
 ```
 
 ### As user:
 
 ```bash
-mkdir -p $HOME/.local/bin && wget -O $HOME/.local/bin/uptimekuma.sh https://source.netsyms.com/Netsyms/uptime-kuma-server-health/raw/branch/main/uptimekuma.sh && chmod +x $HOME/.local/bin/uptimekuma.sh && crontab -l | { cat; echo "* * * * * $HOME/.local/bin/uptimekuma.sh"; } | crontab -
+mkdir -p $HOME/.local/bin && wget -O $HOME/.local/bin/uptimekuma.sh https://source.netsyms.com/Netsyms/uptime-kuma-server-health/raw/branch/main/uptimekuma.sh && chmod +x $HOME/.local/bin/uptimekuma.sh && crontab -l | { cat; echo "* * * * * $HOME/.local/bin/uptimekuma.sh > /dev/null"; } | crontab -
 ```
