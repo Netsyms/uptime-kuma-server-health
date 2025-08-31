@@ -46,8 +46,9 @@ echo -n "Checking CPU load: "
 SYSTEM_LOAD=$(uptime | awk '{print $11}' | cut -d "," -f 1)
 CPU_COUNT=$(nproc)
 CPU_PERCENT=$(awk -v l=$SYSTEM_LOAD -v c=$CPU_COUNT 'BEGIN {printf "%.2f\n", (l/c)*100}')
+CPU_PERCENT="${CPU_PERCENT%.*}" # Remove decimal places
 CPU_STATUS="OK"
-if [[ $CPU_PERCENT > $CPU_USAGE_PERCENT_THRESHOLD ]]; then
+if [[ $CPU_PERCENT -gt $CPU_USAGE_PERCENT_THRESHOLD ]]; then
   CPU_STATUS="$CPU_PERCENT% > $CPU_USAGE_PERCENT_THRESHOLD%"
 fi
 echo "$CPU_STATUS"
