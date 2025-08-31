@@ -1,40 +1,69 @@
-#!/bin/bash
-
 API_URL="https://status.netsyms.net/api/push/"
-HEARTBEAT_KEY=""
-ZFS_KEY=""
-DISK_KEY=""
+PUSH_KEY=""
 DISK_FULL_ALERT_PERCENT_THRESHOLD=85
-
-# Heartbeat
-echo "Sending heartbeat"
-curl "$API_URL$HEARTBEAT_KEY?status=up"
-echo
+CPU_USAGE_PERCENT_THRESHOLD=50
 
 # ZFS health
-echo "Sending ZFS health"
-zpool status -x | grep -q "all pools are healthy" && curl "$API_URL$ZFS_KEY?status=up&msg=ZFS%20Healthy" || curl -G --data-urlencode "status=down" --data-urlencode "msg=$(zpool status -x)" "$API_URL$ZFS_KEY"
-echo
+echo -n "Checking ZFS health: "
+ZFS_STATUS=$(zpool status -x | grep -q "all pools are healthy" && echo "OK" || zpool status -x)
+echo "$ZFS_STATUS"
 
 # Disk usage
-echo "Sending disk usage"
-DISKSOK=1
+echo -n "Checking disk usage: "
+DISKS_STATUS="OK"
 USAGES=()
 while read -r output;
 do
   partition=$(echo "$output" | awk '{ print $2 }')
   percent=$(echo "$output" | awk '{ print $1 }' | cut -d'%' -f1)
   if [ $percent -ge $DISK_FULL_ALERT_PERCENT_THRESHOLD ]; then
-    USAGES+="$partition: $percent%"
-    DISKSOK=0
+    USAGES+=("$partition: $percent% > $DISK_FULL_ALERT_PERCENT_THRESHOLD%")
+    DISKS_STATUS="NOTOK"
   fi
 done <<< $(df | grep -vE "^Filesystem|tmpfs|cdrom" | awk '{ print $5 " " $1 }')
-USAGETEXT=$(IFS=,; echo "${USAGES[*]}")
-echo $USAGETEXT
-if [[ "$DISKSOK" == 1 ]]; then
-  curl "$API_URL$DISK_KEY?status=up"
-  echo
+USAGETEXT=$(IFS=","; echo "${USAGES[*]}")
+if [[ "$DISKS_STATUS" != "OK" ]]; then
+  DISKS_STATUS="$USAGETEXT"
+fi
+echo "$DISKS_STATUS"
+
+# CPU usage percentage
+# Calculated from system load, average over past 5 minutes
+echo -n "Checking CPU load: "
+SYSTEM_LOAD=$(uptime | awk '{print $11}' | cut -d "," -f 1)
+CPU_COUNT=$(nproc)
+CPU_PERCENT=$(awk -v l=$SYSTEM_LOAD -v c=$CPU_COUNT 'BEGIN {printf "%.2f\n", (l/c)*100}')
+CPU_STATUS="OK"
+if [[ $CPU_PERCENT > $CPU_USAGE_PERCENT_THRESHOLD ]]; then
+  CPU_STATUS="$CPU_PERCENT% > $CPU_USAGE_PERCENT_THRESHOLD%"
+fi
+echo "$CPU_STATUS"
+
+#
+# Put it all together
+#
+IS_OK=1
+ERROR_MESSAGES=()
+if [[ $ZFS_STATUS != "OK" ]]; then
+  IS_OK=0
+  ERROR_MESSAGES+=("ZFS alert: $ZFS_STATUS")
+fi
+if [[ $DISKS_STATUS != "OK" ]]; then
+  IS_OK=0
+  ERROR_MESSAGES+=("Disk usage alert: $DISKS_STATUS")
+fi
+if [[ $CPU_STATUS != "OK" ]]; then
+  IS_OK=0
+  ERROR_MESSAGES+=("CPU usage alert: $CPU_STATUS")
+fi
+
+
+echo -n "Sending status: "
+if [[ $IS_OK == "1" ]]; then
+  echo "OK"
+  curl -s -o /dev/null -G "$API_URL$PUSH_KEY?status=up&msg=OK"
 else
-  curl -G --data-urlencode "status=down" --data-urlencode "msg=$USAGETEXT" "$API_URL$DISK_KEY"
-  echo
+  ERROR_STRING=$(IFS=";"; echo "${ERROR_MESSAGES[*]}")
+  echo $ERROR_STRING
+  curl -s -o /dev/null -G --data-urlencode "status=down" --data-urlencode "msg=$ERROR_STRING" "$API_URL$PUSH_KEY"
 fi
