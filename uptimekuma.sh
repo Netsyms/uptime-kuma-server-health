@@ -33,7 +33,7 @@ do
     USAGES+=("$partition: $percent% > $DISK_FULL_ALERT_PERCENT_THRESHOLD%")
     DISKS_STATUS="NOTOK"
   fi
-done <<< $(df | grep -vE "^Filesystem|tmpfs|cdrom" | awk '{ print $5 " " $1 }')
+done <<< $(df | grep -vE "^Filesystem|tmpfs|cdrom|/dev/loop" | awk '{ print $5 " " $1 }')
 USAGETEXT=$(IFS=","; echo "${USAGES[*]}")
 if [[ "$DISKS_STATUS" != "OK" ]]; then
   DISKS_STATUS="$USAGETEXT"
