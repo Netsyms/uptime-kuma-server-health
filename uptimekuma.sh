@@ -58,6 +58,7 @@ MEM_PCT=$(free -m | awk 'NR==2{ print $3*100/$2 }')
 if [[ $MEM_PCT > $MEM_USAGE_PERCENT_THRESHOLD ]]; then
   MEM_STATUS="$MEM_PCT% > $MEM_USAGE_PERCENT_THRESHOLD%"
 fi
+echo "$MEM_STATUS"
 
 
 #
