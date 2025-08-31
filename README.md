@@ -4,6 +4,9 @@ A Bash script that monitors system usage stats and alerts if they rise above con
 
 Checks disk free space, CPU load average, RAM usage, and ZFS pool health.
 
+Sends the CPU usage percentage to Uptime Kuma as the ping latency so a useful graph will be shown on the dashboard.
+You can replace this with the RAM usage by finding `ping=$CPU_PERCENT` near the bottom of the script and replacing it with `ping=$MEM_PERCENT`.
+
 ## One-line installer
 
 Copy-paste to install the script and push status to Uptime Kuma every 60 seconds.
