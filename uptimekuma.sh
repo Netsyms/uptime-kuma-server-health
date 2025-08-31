@@ -1,7 +1,8 @@
 API_URL="https://status.netsyms.net/api/push/"
 PUSH_KEY=""
 DISK_FULL_ALERT_PERCENT_THRESHOLD=85
-CPU_USAGE_PERCENT_THRESHOLD=50
+CPU_USAGE_PERCENT_THRESHOLD=60
+MEM_USAGE_PERCENT_THRESHOLD=80
 
 # ZFS health
 echo -n "Checking ZFS health: "
@@ -39,6 +40,15 @@ if [[ $CPU_PERCENT > $CPU_USAGE_PERCENT_THRESHOLD ]]; then
 fi
 echo "$CPU_STATUS"
 
+# Memory usage percentage
+echo -n "Checking memory usage: "
+MEM_STATUS="OK"
+MEM_PCT=$(free -m | awk 'NR==2{ print $3*100/$2 }')
+if [[ $MEM_PCT > $MEM_USAGE_PERCENT_THRESHOLD ]]; then
+  MEM_STATUS="$MEM_PCT% > $MEM_USAGE_PERCENT_THRESHOLD%"
+fi
+
+
 #
 # Put it all together
 #
@@ -55,6 +65,10 @@ fi
 if [[ $CPU_STATUS != "OK" ]]; then
   IS_OK=0
   ERROR_MESSAGES+=("CPU usage alert: $CPU_STATUS")
+fi
+if [[ $MEM_STATUS != "OK" ]]; then
+  IS_OK=0
+  ERROR_MESSAGES+=("Memory usage alert: $MEM_STATUS")
 fi
 
 
