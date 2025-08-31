@@ -10,7 +10,7 @@ You can replace this with the RAM usage or disable the graph by modifying the `G
 ## One-line installer
 
 Copy-paste to install the script and push status to Uptime Kuma every 60 seconds.
-Then just edit `/opt/uptimekuma.sh` (if installed as root) or `$HOME/.local/bin/uptimekuma.sh` (if installed as user)
+Then just edit `/opt/uptimekuma.sh` (if installed as root) or `~/.local/bin/uptimekuma.sh` (if installed as user)
 to configure the `API_URL` and `PUSH_KEY` and optionally customize alert parameters.
 
 ### As root:
