@@ -2,13 +2,13 @@
 
 A Bash script that monitors system usage stats and alerts if they rise above configurable limits.
 
-Run via a cron job every minute.
+Checks disk free space, CPU load average, RAM usage, and ZFS pool health.
 
 ## One-line installer
 
 Copy-paste to install the script and push status to Uptime Kuma every 60 seconds.
 Then just edit `/opt/uptimekuma.sh` (if installed as root) or `$HOME/.local/bin/uptimekuma.sh` (if installed as user)
-to configure the `PUSH_KEY` and customize alert parameters.
+to configure the `API_URL` and `PUSH_KEY` and optionally customize alert parameters.
 
 ### As root:
 
