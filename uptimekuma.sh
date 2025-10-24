@@ -56,8 +56,8 @@ echo "$CPU_STATUS"
 # Memory usage percentage
 echo -n "Checking memory usage: "
 MEM_STATUS="OK"
-MEM_PERCENT=$(free -m | awk 'NR==2{ print $3*100/$2 }')
-if [[ $MEM_PERCENT > $MEM_USAGE_PERCENT_THRESHOLD ]]; then
+MEM_PERCENT=$(free -m | awk 'NR==2{ print $3*100/$2 }' | awk -F. '{print $1}')
+if [[ $MEM_PERCENT -gt $MEM_USAGE_PERCENT_THRESHOLD ]]; then
   MEM_STATUS="$MEM_PERCENT% > $MEM_USAGE_PERCENT_THRESHOLD%"
 fi
 echo "$MEM_STATUS"
